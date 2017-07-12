@@ -184,14 +184,14 @@ module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifte
 
     if (button == 1'b0) begin
     // 00: n/a, 01: perfect, 10: good, 11: miss
-      if (rhythm_shifter[1:1] == 1'b1) begin
-        accuracy <= 2'b01;
-        score <= score + 8'd2;
-        combo <= combo + 8'd1;
-        rhythm_shifter[0] <= 1'b0;
-      end else if (rhythm_shifter[0:0] == 1'b1) begin
+      if (rhythm_shifter[0:0] == 1'b1) begin
         accuracy <= 2'b10;
         score <= score + 8'd1;
+        combo <= combo + 8'd1;
+        rhythm_shifter[0] <= 1'b0;
+      end else if (rhythm_shifter[1:1] == 1'b1) begin
+        accuracy <= 2'b01;
+        score <= score + 8'd2;
         combo <= combo + 8'd1;
         rhythm_shifter[0] <= 1'b0;
       end else if (rhythm_shifter[2:2] == 1'b1) begin
