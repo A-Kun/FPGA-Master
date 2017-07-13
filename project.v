@@ -47,8 +47,8 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
       .resetn(SW[0]),
       .clock(CLOCK_50),
       .colour(colour),
-      .x(X),
-      .y(Y),
+      .x(x),
+      .y(y),
       .plot(1'b1),
       /* Signals for the DAC to drive the monitor. */
       .VGA_R(VGA_R),
@@ -105,6 +105,7 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
 
   datapath dp(
     .clk(clk_8hz),
+    .clk_50(CLOCK_50),
     .load(KEY[0]),
     .rst(SW[0]),
     .button(KEY[1]),
@@ -113,7 +114,11 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
     .rhythm_shifter_out(led[9:0]),
     .combo(combo[7:0]),
     .score(score[7:0]),
-    .accuracy(accuracy));
+    .accuracy(accuracy),
+    .x(x),
+    .y(y),
+    .colour(colour)
+  );
 endmodule
 
 module control(clk, start, rst, enable_shift);
@@ -148,8 +153,8 @@ module control(clk, start, rst, enable_shift);
   end
 endmodule
 
-module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
-  input clk, is_start, rst, load, button;
+module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
+  input clk, clk_50, is_start, rst, load, button;
   input [190:0] init_rhythm_map;
   reg [190:0] rhythm_shifter;
   output wire [9:0] rhythm_shifter_out;
@@ -208,13 +213,27 @@ module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifte
       accuracy <= 2'b11;
       combo <= 8'd0;
     end
+  end
 
+  always @(posedge clk_50) begin
     if (position == 7'b1000000) begin
       position <= 7'b0;
     end
 
-    if (accuracy == 2'b01) begin  // perfect
-      if ((position[5:3] == 3'd1 && position[2:0] != 3'd0) ||
+    if (position[5:3] == 3'd0 && position[2:0] == 3'd0) begin
+      x[2:0] <= position[5:3];
+      y[2:0] <= position[2:0];
+      colour <= 3'b100;
+    end
+    else if ((position[2:0] == 3'b0) 
+      && (rhythm_shifter[position[5:3] + 1'b1])) begin
+        x[2:0] <= position[5:3];
+        y[2:0] <= position[2:0];
+        colour <= 3'b111;
+
+    end
+    else if ((accuracy == 2'b01) &&   // perfect
+         ((position[5:3] == 3'd1 && position[2:0] != 3'd0) ||
           (position[5:3] == 3'd2) ||
           (position[5:3] == 3'd3 && position[2:0] == 3'd0) ||
           (position[5:3] == 3'd3 && position[2:0] == 3'd1) ||
@@ -234,19 +253,13 @@ module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifte
           (position[5:3] == 3'd6 && position[2:0] == 3'd2) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd3) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
-        ) begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b010;
+          )) begin
+          x[2:0] <= position[5:3];
+          y[2:0] <= position[2:0];
+          colour <= 3'b010;
       end
-      else begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b000;
-      end
-    end
-    else if (accuracy == 2'b10) begin  // good
-      if ((position[5:3] == 3'd1 && position[2:0] == 3'd1) ||
+      else if ((accuracy == 2'b10) &&   // good
+         ((position[5:3] == 3'd1 && position[2:0] == 3'd1) ||
           (position[5:3] == 3'd1 && position[2:0] == 3'd2) ||
           (position[5:3] == 3'd1 && position[2:0] == 3'd3) ||
           (position[5:3] == 3'd1 && position[2:0] == 3'd4) ||
@@ -264,19 +277,13 @@ module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifte
           (position[5:3] == 3'd5 && position[2:0] == 3'd5) ||
           (position[5:3] == 3'd5 && position[2:0] == 3'd6) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
-        ) begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b001;
+          )) begin
+            x[2:0] <= position[5:3];
+            y[2:0] <= position[2:0];
+            colour <= 3'b001;
       end
-      else begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b000;
-      end
-    end
-    else if (accuracy == 2'b11) begin  // miss
-      if ((position[5:3] == 3'd1) ||
+      else if ((accuracy == 2'b11) &&  // miss
+         ((position[5:3] == 3'd1) ||
           (position[5:3] == 3'd2) ||
           (position[5:3] == 3'd3 && position[2:0] == 3'd0) ||
           (position[5:3] == 3'd3 && position[2:0] == 3'd1) ||
@@ -294,22 +301,17 @@ module datapath(clk, load, button, is_start, rst, init_rhythm_map, rhythm_shifte
           (position[5:3] == 3'd6 && position[2:0] == 3'd1) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd3) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
-        ) begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b100;
+          )) begin
+            x[2:0] <= position[5:3];
+            y[2:0] <= position[2:0];
+            colour <= 3'b100;
       end
-      else begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
-        colour <= 3'b000;
-      end
-    end
     else begin
-      x[2:0] <= position[5:3];
-      y[2:0] <= position[2:0];
-      colour <= 3'b0;
-    end
+         x[2:0] <= position[5:3];
+            y[2:0] <= position[2:0];
+            colour <= 3'b000;
+      end
+
     position <= position + 1'b1;
   end
 endmodule
