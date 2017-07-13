@@ -227,17 +227,16 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
       position <= 7'b0;
     end
 
-    if (position[5:3] == 3'd0 && position[2:0] == 3'd0) begin
-      x[2:0] <= position[5:3];
-      y[2:0] <= position[2:0];
+    if (position[5:3] == 3'd0 && position[2:0] == 3'd0 && !rhythm_shifter[1]) begin
       colour <= 3'b100;
     end
     else if ((position[2:0] == 3'b0)
       && (rhythm_shifter[position[5:3] + 1'b1])) begin
-        x[2:0] <= position[5:3];
-        y[2:0] <= position[2:0];
         colour <= 3'b111;
-
+    end
+    else if ((position[2:0] == 3'b0) 
+      && (!rhythm_shifter[position[5:3] + 1'b1])) begin
+        colour <= 3'b000;
     end
     else if ((accuracy == 2'b01) &&   // perfect
          ((position[5:3] == 3'd1 && position[2:0] != 3'd0) ||
@@ -261,8 +260,6 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
           (position[5:3] == 3'd6 && position[2:0] == 3'd3) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
           )) begin
-          x[2:0] <= position[5:3];
-          y[2:0] <= position[2:0];
           colour <= 3'b010;
       end
       else if ((accuracy == 2'b10) &&   // good
@@ -285,8 +282,6 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
           (position[5:3] == 3'd5 && position[2:0] == 3'd6) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
           )) begin
-            x[2:0] <= position[5:3];
-            y[2:0] <= position[2:0];
             colour <= 3'b001;
       end
       else if ((accuracy == 2'b11) &&  // miss
@@ -309,16 +304,15 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
           (position[5:3] == 3'd6 && position[2:0] == 3'd3) ||
           (position[5:3] == 3'd6 && position[2:0] == 3'd4)
           )) begin
-            x[2:0] <= position[5:3];
-            y[2:0] <= position[2:0];
             colour <= 3'b100;
       end
     else begin
-         x[2:0] <= position[5:3];
-            y[2:0] <= position[2:0];
-            colour <= 3'b000;
-      end
+         colour <= 3'b000;
+    end
 
+    x[2:0] <= position[5:3];
+    y[2:0] <= position[2:0];
+			
     position <= position + 1'b1;
   end
 endmodule
