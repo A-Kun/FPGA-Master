@@ -260,7 +260,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       (x_pos == 3'd6 && y_pos == 3'd3) ||
       (x_pos == 3'd6 && y_pos == 3'd4)
     )) begin
-      colour <= 3'b010;
+      colour <= 3'b100;
     end
     else if ((accuracy == 2'b10) && (  // good  // TODO: Map bitmap to pixels
       (x_pos == 3'd1 && y_pos == 3'd1) ||
@@ -282,7 +282,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       (x_pos == 3'd5 && y_pos == 3'd6) ||
       (x_pos == 3'd6 && y_pos == 3'd4)
     )) begin
-      colour <= 3'b001;
+      colour <= 3'b010;
     end
     else if ((accuracy == 2'b11) && (  // miss  // TODO: Map bitmap to pixels
       (x_pos == 3'd1) ||
@@ -304,7 +304,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       (x_pos == 3'd6 && y_pos == 3'd3) ||
       (x_pos == 3'd6 && y_pos == 3'd4)
     )) begin
-      colour <= 3'b100;
+      colour <= 3'b001;
     end
     else begin
       colour <= 3'b000;
