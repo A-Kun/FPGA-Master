@@ -174,7 +174,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
 
   assign rhythm_shifter_out[9:0] = rhythm_shifter[10:1];
 
-  reg [6:0] position = 7'b0;
+  reg [14:0] position = 15'b0;
   reg [2:0] x_pos = 3'b0;
   reg [2:0] y_pos = 3'b0;
 
@@ -225,98 +225,93 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   end
 
   always @(posedge clk_50m) begin
-    if (position == 7'b1000000) begin
-      position <= 7'b0;
+    if (position == 15'b100000000000000) begin
+      position <= 15'b0;
     end
 
-    x_pos[2:0] <= position[5:3];
-    y_pos[2:0] <= position[2:0];
-
-    if (x_pos == 3'd0 && y_pos == 3'd0 && !rhythm_shifter[1]) begin
+    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
       colour <= 3'b100;
     end
-    else if ((y_pos == 3'b0)
-      && (rhythm_shifter[x_pos + 1'b1])) begin
+    else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
         colour <= 3'b111;
     end
-    else if ((y_pos == 3'b0)
-      && (!rhythm_shifter[x_pos + 1'b1])) begin
+    else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
         colour <= 3'b000;
     end
-    else if ((accuracy == 2'b01) &&   // perfect
-         ((x_pos == 3'd1 && y_pos != 3'd0) ||
-          (x_pos == 3'd2) ||
-          (x_pos == 3'd3 && y_pos == 3'd0) ||
-          (x_pos == 3'd3 && y_pos == 3'd1) ||
-          (x_pos == 3'd3 && y_pos == 3'd4) ||
-          (x_pos == 3'd3 && y_pos == 3'd5) ||
-          (x_pos == 3'd4 && y_pos == 3'd0) ||
-          (x_pos == 3'd4 && y_pos == 3'd1) ||
-          (x_pos == 3'd4 && y_pos == 3'd4) ||
-          (x_pos == 3'd4 && y_pos == 3'd5) ||
-          (x_pos == 3'd5 && y_pos == 3'd0) ||
-          (x_pos == 3'd5 && y_pos == 3'd1) ||
-          (x_pos == 3'd5 && y_pos == 3'd2) ||
-          (x_pos == 3'd5 && y_pos == 3'd3) ||
-          (x_pos == 3'd5 && y_pos == 3'd4) ||
-          (x_pos == 3'd5 && y_pos == 3'd5) ||
-          (x_pos == 3'd6 && y_pos == 3'd1) ||
-          (x_pos == 3'd6 && y_pos == 3'd2) ||
-          (x_pos == 3'd6 && y_pos == 3'd3) ||
-          (x_pos == 3'd6 && y_pos == 3'd4)
-          )) begin
-          colour <= 3'b010;
-      end
-      else if ((accuracy == 2'b10) &&   // good
-         ((x_pos == 3'd1 && y_pos == 3'd1) ||
-          (x_pos == 3'd1 && y_pos == 3'd2) ||
-          (x_pos == 3'd1 && y_pos == 3'd3) ||
-          (x_pos == 3'd1 && y_pos == 3'd4) ||
-          (x_pos == 3'd1 && y_pos == 3'd5) ||
-          (x_pos == 3'd1 && y_pos == 3'd6) ||
-          (x_pos == 3'd2 && y_pos == 3'd0) ||
-          (x_pos == 3'd2 && y_pos == 3'd7) ||
-          (x_pos == 3'd3 && y_pos == 3'd0) ||
-          (x_pos == 3'd3 && y_pos == 3'd7) ||
-          (x_pos == 3'd4 && y_pos == 3'd0) ||
-          (x_pos == 3'd4 && y_pos == 3'd4) ||
-          (x_pos == 3'd4 && y_pos == 3'd7) ||
-          (x_pos == 3'd5 && y_pos == 3'd0) ||
-          (x_pos == 3'd5 && y_pos == 3'd4) ||
-          (x_pos == 3'd5 && y_pos == 3'd5) ||
-          (x_pos == 3'd5 && y_pos == 3'd6) ||
-          (x_pos == 3'd6 && y_pos == 3'd4)
-          )) begin
-            colour <= 3'b001;
-      end
-      else if ((accuracy == 2'b11) &&  // miss
-         ((x_pos == 3'd1) ||
-          (x_pos == 3'd2) ||
-          (x_pos == 3'd3 && y_pos == 3'd0) ||
-          (x_pos == 3'd3 && y_pos == 3'd1) ||
-          (x_pos == 3'd3 && y_pos == 3'd3) ||
-          (x_pos == 3'd3 && y_pos == 3'd4) ||
-          (x_pos == 3'd4 && y_pos == 3'd0) ||
-          (x_pos == 3'd4 && y_pos == 3'd1) ||
-          (x_pos == 3'd4 && y_pos == 3'd3) ||
-          (x_pos == 3'd4 && y_pos == 3'd4) ||
-          (x_pos == 3'd5 && y_pos == 3'd0) ||
-          (x_pos == 3'd5 && y_pos == 3'd1) ||
-          (x_pos == 3'd5 && y_pos == 3'd3) ||
-          (x_pos == 3'd5 && y_pos == 3'd4) ||
-          (x_pos == 3'd6 && y_pos == 3'd0) ||
-          (x_pos == 3'd6 && y_pos == 3'd1) ||
-          (x_pos == 3'd6 && y_pos == 3'd3) ||
-          (x_pos == 3'd6 && y_pos == 3'd4)
-          )) begin
-            colour <= 3'b100;
-      end
+    else if ((accuracy == 2'b01) && (  // perfect  // TODO: Map bitmap to pixels
+      (x_pos == 3'd1 && y_pos != 3'd0) ||
+      (x_pos == 3'd2) ||
+      (x_pos == 3'd3 && y_pos == 3'd0) ||
+      (x_pos == 3'd3 && y_pos == 3'd1) ||
+      (x_pos == 3'd3 && y_pos == 3'd4) ||
+      (x_pos == 3'd3 && y_pos == 3'd5) ||
+      (x_pos == 3'd4 && y_pos == 3'd0) ||
+      (x_pos == 3'd4 && y_pos == 3'd1) ||
+      (x_pos == 3'd4 && y_pos == 3'd4) ||
+      (x_pos == 3'd4 && y_pos == 3'd5) ||
+      (x_pos == 3'd5 && y_pos == 3'd0) ||
+      (x_pos == 3'd5 && y_pos == 3'd1) ||
+      (x_pos == 3'd5 && y_pos == 3'd2) ||
+      (x_pos == 3'd5 && y_pos == 3'd3) ||
+      (x_pos == 3'd5 && y_pos == 3'd4) ||
+      (x_pos == 3'd5 && y_pos == 3'd5) ||
+      (x_pos == 3'd6 && y_pos == 3'd1) ||
+      (x_pos == 3'd6 && y_pos == 3'd2) ||
+      (x_pos == 3'd6 && y_pos == 3'd3) ||
+      (x_pos == 3'd6 && y_pos == 3'd4)
+    )) begin
+      colour <= 3'b010;
+    end
+    else if ((accuracy == 2'b10) && (  // good  // TODO: Map bitmap to pixels
+      (x_pos == 3'd1 && y_pos == 3'd1) ||
+      (x_pos == 3'd1 && y_pos == 3'd2) ||
+      (x_pos == 3'd1 && y_pos == 3'd3) ||
+      (x_pos == 3'd1 && y_pos == 3'd4) ||
+      (x_pos == 3'd1 && y_pos == 3'd5) ||
+      (x_pos == 3'd1 && y_pos == 3'd6) ||
+      (x_pos == 3'd2 && y_pos == 3'd0) ||
+      (x_pos == 3'd2 && y_pos == 3'd7) ||
+      (x_pos == 3'd3 && y_pos == 3'd0) ||
+      (x_pos == 3'd3 && y_pos == 3'd7) ||
+      (x_pos == 3'd4 && y_pos == 3'd0) ||
+      (x_pos == 3'd4 && y_pos == 3'd4) ||
+      (x_pos == 3'd4 && y_pos == 3'd7) ||
+      (x_pos == 3'd5 && y_pos == 3'd0) ||
+      (x_pos == 3'd5 && y_pos == 3'd4) ||
+      (x_pos == 3'd5 && y_pos == 3'd5) ||
+      (x_pos == 3'd5 && y_pos == 3'd6) ||
+      (x_pos == 3'd6 && y_pos == 3'd4)
+    )) begin
+      colour <= 3'b001;
+    end
+    else if ((accuracy == 2'b11) && (  // miss  // TODO: Map bitmap to pixels
+      (x_pos == 3'd1) ||
+      (x_pos == 3'd2) ||
+      (x_pos == 3'd3 && y_pos == 3'd0) ||
+      (x_pos == 3'd3 && y_pos == 3'd1) ||
+      (x_pos == 3'd3 && y_pos == 3'd3) ||
+      (x_pos == 3'd3 && y_pos == 3'd4) ||
+      (x_pos == 3'd4 && y_pos == 3'd0) ||
+      (x_pos == 3'd4 && y_pos == 3'd1) ||
+      (x_pos == 3'd4 && y_pos == 3'd3) ||
+      (x_pos == 3'd4 && y_pos == 3'd4) ||
+      (x_pos == 3'd5 && y_pos == 3'd0) ||
+      (x_pos == 3'd5 && y_pos == 3'd1) ||
+      (x_pos == 3'd5 && y_pos == 3'd3) ||
+      (x_pos == 3'd5 && y_pos == 3'd4) ||
+      (x_pos == 3'd6 && y_pos == 3'd0) ||
+      (x_pos == 3'd6 && y_pos == 3'd1) ||
+      (x_pos == 3'd6 && y_pos == 3'd3) ||
+      (x_pos == 3'd6 && y_pos == 3'd4)
+    )) begin
+      colour <= 3'b100;
+    end
     else begin
-         colour <= 3'b000;
+      colour <= 3'b000;
     end
 
-    x[2:0] <= x_pos;
-    y[2:0] <= y_pos;
+    x_pos[6:0] <= position[13:7];
+    y_pos[6:0] <= position[6:0];
 
     position <= position + 1'b1;
   end
