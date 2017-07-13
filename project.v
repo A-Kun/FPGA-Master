@@ -1,4 +1,4 @@
-module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
+module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
   // The ports below are for the VGA output.  Do not change.
   VGA_CLK,               //  VGA Clock
   VGA_HS,              //  VGA H_SYNC
@@ -14,6 +14,14 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
   input CLOCK_50;
   output [9:0] LEDR;
   input [0:0] SW;
+
+  input [0:0] GPIO;
+  output [0:0] LEDG;
+
+  wire push_key;
+  assign push_key = GPIO[0];
+
+  assign LEDG[0] = GPIO[0];
 
   wire [9:0] led;
   wire clk_8hz;
@@ -35,7 +43,6 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
   output  [9:0]  VGA_R;           //  VGA Red[9:0]
   output  [9:0]  VGA_G;           //  VGA Green[9:0]
   output  [9:0]  VGA_B;           //  VGA Blue[9:0]
-
   wire [2:0] colour;
   wire [7:0] x;
   wire [6:0] y;
@@ -108,7 +115,7 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
     .clk_50(CLOCK_50),
     .load(KEY[0]),
     .rst(SW[0]),
-    .button(KEY[1]),
+    .button(push_key),
     .is_start(if_shift),
     .init_rhythm_map(RHYTHM_MAP),
     .rhythm_shifter_out(led[9:0]),
@@ -225,7 +232,7 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
       y[2:0] <= position[2:0];
       colour <= 3'b100;
     end
-    else if ((position[2:0] == 3'b0) 
+    else if ((position[2:0] == 3'b0)
       && (rhythm_shifter[position[5:3] + 1'b1])) begin
         x[2:0] <= position[5:3];
         y[2:0] <= position[2:0];

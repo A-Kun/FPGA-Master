@@ -1,5 +1,6 @@
 .DS_Store
 db/*
+project.v.bak
 project.qpf
 project.qsf
 project.qsf.bak
