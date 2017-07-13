@@ -111,8 +111,8 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
     .enable_shift(if_shift));
 
   datapath dp(
-    .clk(clk_8hz),
-    .clk_50(CLOCK_50),
+    .clk_8(clk_8hz),
+    .clk_50m(CLOCK_50),
     .load(KEY[0]),
     .rst(SW[0]),
     .button(push_key),
@@ -160,8 +160,8 @@ module control(clk, start, rst, enable_shift);
   end
 endmodule
 
-module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
-  input clk, clk_50, is_start, rst, load, button;
+module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
+  input clk_8, clk_50m, is_start, rst, load, button;
   input [190:0] init_rhythm_map;
   reg [190:0] rhythm_shifter;
   output wire [9:0] rhythm_shifter_out;
@@ -178,7 +178,7 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
   reg [2:0] x_pos = 3'b0;
   reg [2:0] y_pos = 3'b0;
 
-  always @(posedge clk) begin
+  always @(posedge clk_8) begin
     if (!rst) begin
       // reset
       rhythm_shifter <= 191'd0;
@@ -224,7 +224,7 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
     end
   end
 
-  always @(posedge clk_50) begin
+  always @(posedge clk_50m) begin
     if (position == 7'b1000000) begin
       position <= 7'b0;
     end
@@ -239,7 +239,7 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
       && (rhythm_shifter[x_pos + 1'b1])) begin
         colour <= 3'b111;
     end
-    else if ((y_pos == 3'b0) 
+    else if ((y_pos == 3'b0)
       && (!rhythm_shifter[x_pos + 1'b1])) begin
         colour <= 3'b000;
     end
@@ -317,7 +317,7 @@ module datapath(clk, clk_50, load, button, is_start, rst, init_rhythm_map, rhyth
 
     x[2:0] <= x_pos;
     y[2:0] <= y_pos;
-			
+
     position <= position + 1'b1;
   end
 endmodule
