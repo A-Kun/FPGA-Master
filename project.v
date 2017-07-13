@@ -168,15 +168,15 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   output reg [7:0] combo = 8'b0;
   output reg [7:0] score = 8'b0;
   output reg [1:0] accuracy = 2'b0;
-  output reg [7:0] x;
-  output reg [6:0] y;
-  output reg [2:0] colour;
+  output reg [7:0] x = 8'b0;
+  output reg [6:0] y = 7'b0;
+  output reg [2:0] colour = 3'b0;
 
   assign rhythm_shifter_out[9:0] = rhythm_shifter[10:1];
 
   reg [14:0] position = 15'b0;
-  reg [2:0] x_pos = 3'b0;
-  reg [2:0] y_pos = 3'b0;
+  reg [6:0] x_pos = 3'b0;
+  reg [6:0] y_pos = 3'b0;
 
   always @(posedge clk_8) begin
     if (!rst) begin
