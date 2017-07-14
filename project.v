@@ -1,14 +1,14 @@
 module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
   // The ports below are for the VGA output.  Do not change.
-  VGA_CLK,               //  VGA Clock
-  VGA_HS,              //  VGA H_SYNC
-  VGA_VS,              //  VGA V_SYNC
-  VGA_BLANK_N,            //  VGA BLANK
-  VGA_SYNC_N,            //  VGA SYNC
-  VGA_R,               //  VGA Red[9:0]
-  VGA_G,               //  VGA Green[9:0]
-  VGA_B               //  VGA Blue[9:0]
-  );
+  // VGA_CLK,               //  VGA Clock
+  // VGA_HS,              //  VGA H_SYNC
+  // VGA_VS,              //  VGA V_SYNC
+  // VGA_BLANK_N,            //  VGA BLANK
+  // VGA_SYNC_N,            //  VGA SYNC
+  // VGA_R,               //  VGA Red[9:0]
+  // VGA_G,               //  VGA Green[9:0]
+  // VGA_B               //  VGA Blue[9:0]
+  // );
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX5;
   input [2:0] KEY;
   input CLOCK_50;
@@ -34,42 +34,42 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
 
   assign LEDR[9:0] = led[9:0];
 
-  // Do not change the following outputs
-  output      VGA_CLK;           //  VGA Clock
-  output      VGA_HS;          //  VGA H_SYNC
-  output      VGA_VS;          //  VGA V_SYNC
-  output      VGA_BLANK_N;        //  VGA BLANK
-  output      VGA_SYNC_N;        //  VGA SYNC
-  output  [9:0]  VGA_R;           //  VGA Red[9:0]
-  output  [9:0]  VGA_G;           //  VGA Green[9:0]
-  output  [9:0]  VGA_B;           //  VGA Blue[9:0]
-  wire [2:0] colour;
-  wire [7:0] x;
-  wire [6:0] y;
+  // // Do not change the following outputs
+  // output      VGA_CLK;           //  VGA Clock
+  // output      VGA_HS;          //  VGA H_SYNC
+  // output      VGA_VS;          //  VGA V_SYNC
+  // output      VGA_BLANK_N;        //  VGA BLANK
+  // output      VGA_SYNC_N;        //  VGA SYNC
+  // output  [9:0]  VGA_R;           //  VGA Red[9:0]
+  // output  [9:0]  VGA_G;           //  VGA Green[9:0]
+  // output  [9:0]  VGA_B;           //  VGA Blue[9:0]
+  // wire [2:0] colour;
+  // wire [7:0] x;
+  // wire [6:0] y;
 
   // Create an Instance of a VGA controller - there can be only one!
   // Define the number of colours as well as the initial background
   // image file (.MIF) for the controller.
-  vga_adapter VGA(
-      .resetn(SW[0]),
-      .clock(CLOCK_50),
-      .colour(colour),
-      .x(x),
-      .y(y),
-      .plot(1'b1),
-      /* Signals for the DAC to drive the monitor. */
-      .VGA_R(VGA_R),
-      .VGA_G(VGA_G),
-      .VGA_B(VGA_B),
-      .VGA_HS(VGA_HS),
-      .VGA_VS(VGA_VS),
-      .VGA_BLANK(VGA_BLANK_N),
-      .VGA_SYNC(VGA_SYNC_N),
-      .VGA_CLK(VGA_CLK));
-    defparam VGA.RESOLUTION = "160x120";
-    defparam VGA.MONOCHROME = "FALSE";
-    defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
-    defparam VGA.BACKGROUND_IMAGE = "black.mif";
+  // vga_adapter VGA(
+  //     .resetn(SW[0]),
+  //     .clock(CLOCK_50),
+  //     .colour(colour),
+  //     .x(x),
+  //     .y(y),
+  //     .plot(1'b1),
+  //     /* Signals for the DAC to drive the monitor. */
+  //     .VGA_R(VGA_R),
+  //     .VGA_G(VGA_G),
+  //     .VGA_B(VGA_B),
+  //     .VGA_HS(VGA_HS),
+  //     .VGA_VS(VGA_VS),
+  //     .VGA_BLANK(VGA_BLANK_N),
+  //     .VGA_SYNC(VGA_SYNC_N),
+  //     .VGA_CLK(VGA_CLK));
+  //   defparam VGA.RESOLUTION = "160x120";
+  //   defparam VGA.MONOCHROME = "FALSE";
+  //   defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
+  //   defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
   // wire [3:0] counter;
   // DisplayCounter dc(
@@ -122,9 +122,9 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
     .combo(combo[7:0]),
     .score(score[7:0]),
     .accuracy(accuracy),
-    .x(x),
-    .y(y),
-    .colour(colour)
+    // .x(x),
+    // .y(y),
+    // .colour(colour)
   );
 endmodule
 
@@ -160,7 +160,8 @@ module control(clk, start, rst, enable_shift);
   end
 endmodule
 
-module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
+// module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy, x, y, colour);
+module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rhythm_shifter_out, combo, score, accuracy);
   input clk_8, clk_50m, is_start, rst, load, button;
   input [190:0] init_rhythm_map;
   reg [190:0] rhythm_shifter;
@@ -168,9 +169,9 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   output reg [7:0] combo = 8'b0;
   output reg [7:0] score = 8'b0;
   output reg [1:0] accuracy = 2'b0;
-  output reg [7:0] x = 8'b0;
-  output reg [6:0] y = 7'b0;
-  output reg [2:0] colour = 3'b0;
+  // output reg [7:0] x = 8'b0;
+  // output reg [6:0] y = 7'b0;
+  // output reg [2:0] colour = 3'b0;
 
   assign rhythm_shifter_out[9:0] = rhythm_shifter[10:1];
 
@@ -224,97 +225,97 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
     end
   end
 
-  always @(posedge clk_50m) begin
-    if (position == 15'b100000000000000) begin
-      position <= 15'b0;
-    end
-
-    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
-      colour <= 3'b100;
-    end
-    else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
-        colour <= 3'b111;
-    end
-    else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
-        colour <= 3'b000;
-    end
-    else if ((accuracy == 2'b01) && (  // perfect  // TODO: Map bitmap to pixels
-      (x_pos == 3'd1 && y_pos != 3'd0) ||
-      (x_pos == 3'd2) ||
-      (x_pos == 3'd3 && y_pos == 3'd0) ||
-      (x_pos == 3'd3 && y_pos == 3'd1) ||
-      (x_pos == 3'd3 && y_pos == 3'd4) ||
-      (x_pos == 3'd3 && y_pos == 3'd5) ||
-      (x_pos == 3'd4 && y_pos == 3'd0) ||
-      (x_pos == 3'd4 && y_pos == 3'd1) ||
-      (x_pos == 3'd4 && y_pos == 3'd4) ||
-      (x_pos == 3'd4 && y_pos == 3'd5) ||
-      (x_pos == 3'd5 && y_pos == 3'd0) ||
-      (x_pos == 3'd5 && y_pos == 3'd1) ||
-      (x_pos == 3'd5 && y_pos == 3'd2) ||
-      (x_pos == 3'd5 && y_pos == 3'd3) ||
-      (x_pos == 3'd5 && y_pos == 3'd4) ||
-      (x_pos == 3'd5 && y_pos == 3'd5) ||
-      (x_pos == 3'd6 && y_pos == 3'd1) ||
-      (x_pos == 3'd6 && y_pos == 3'd2) ||
-      (x_pos == 3'd6 && y_pos == 3'd3) ||
-      (x_pos == 3'd6 && y_pos == 3'd4)
-    )) begin
-      colour <= 3'b100;
-    end
-    else if ((accuracy == 2'b10) && (  // good  // TODO: Map bitmap to pixels
-      (x_pos == 3'd1 && y_pos == 3'd1) ||
-      (x_pos == 3'd1 && y_pos == 3'd2) ||
-      (x_pos == 3'd1 && y_pos == 3'd3) ||
-      (x_pos == 3'd1 && y_pos == 3'd4) ||
-      (x_pos == 3'd1 && y_pos == 3'd5) ||
-      (x_pos == 3'd1 && y_pos == 3'd6) ||
-      (x_pos == 3'd2 && y_pos == 3'd0) ||
-      (x_pos == 3'd2 && y_pos == 3'd7) ||
-      (x_pos == 3'd3 && y_pos == 3'd0) ||
-      (x_pos == 3'd3 && y_pos == 3'd7) ||
-      (x_pos == 3'd4 && y_pos == 3'd0) ||
-      (x_pos == 3'd4 && y_pos == 3'd4) ||
-      (x_pos == 3'd4 && y_pos == 3'd7) ||
-      (x_pos == 3'd5 && y_pos == 3'd0) ||
-      (x_pos == 3'd5 && y_pos == 3'd4) ||
-      (x_pos == 3'd5 && y_pos == 3'd5) ||
-      (x_pos == 3'd5 && y_pos == 3'd6) ||
-      (x_pos == 3'd6 && y_pos == 3'd4)
-    )) begin
-      colour <= 3'b010;
-    end
-    else if ((accuracy == 2'b11) && (  // miss  // TODO: Map bitmap to pixels
-      (x_pos == 3'd1) ||
-      (x_pos == 3'd2) ||
-      (x_pos == 3'd3 && y_pos == 3'd0) ||
-      (x_pos == 3'd3 && y_pos == 3'd1) ||
-      (x_pos == 3'd3 && y_pos == 3'd3) ||
-      (x_pos == 3'd3 && y_pos == 3'd4) ||
-      (x_pos == 3'd4 && y_pos == 3'd0) ||
-      (x_pos == 3'd4 && y_pos == 3'd1) ||
-      (x_pos == 3'd4 && y_pos == 3'd3) ||
-      (x_pos == 3'd4 && y_pos == 3'd4) ||
-      (x_pos == 3'd5 && y_pos == 3'd0) ||
-      (x_pos == 3'd5 && y_pos == 3'd1) ||
-      (x_pos == 3'd5 && y_pos == 3'd3) ||
-      (x_pos == 3'd5 && y_pos == 3'd4) ||
-      (x_pos == 3'd6 && y_pos == 3'd0) ||
-      (x_pos == 3'd6 && y_pos == 3'd1) ||
-      (x_pos == 3'd6 && y_pos == 3'd3) ||
-      (x_pos == 3'd6 && y_pos == 3'd4)
-    )) begin
-      colour <= 3'b001;
-    end
-    else begin
-      colour <= 3'b000;
-    end
-
-    x_pos[6:0] <= position[13:7];
-    y_pos[6:0] <= position[6:0];
-
-    position <= position + 1'b1;
-  end
+//   always @(posedge clk_50m) begin
+//     if (position == 15'b100000000000000) begin
+//       position <= 15'b0;
+//     end
+//
+//     if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
+//       colour <= 3'b100;
+//     end
+//     else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
+//         colour <= 3'b111;
+//     end
+//     else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
+//         colour <= 3'b000;
+//     end
+//     else if ((accuracy == 2'b01) && (  // perfect  // TODO: Map bitmap to pixels
+//       (x_pos == 3'd1 && y_pos != 3'd0) ||
+//       (x_pos == 3'd2) ||
+//       (x_pos == 3'd3 && y_pos == 3'd0) ||
+//       (x_pos == 3'd3 && y_pos == 3'd1) ||
+//       (x_pos == 3'd3 && y_pos == 3'd4) ||
+//       (x_pos == 3'd3 && y_pos == 3'd5) ||
+//       (x_pos == 3'd4 && y_pos == 3'd0) ||
+//       (x_pos == 3'd4 && y_pos == 3'd1) ||
+//       (x_pos == 3'd4 && y_pos == 3'd4) ||
+//       (x_pos == 3'd4 && y_pos == 3'd5) ||
+//       (x_pos == 3'd5 && y_pos == 3'd0) ||
+//       (x_pos == 3'd5 && y_pos == 3'd1) ||
+//       (x_pos == 3'd5 && y_pos == 3'd2) ||
+//       (x_pos == 3'd5 && y_pos == 3'd3) ||
+//       (x_pos == 3'd5 && y_pos == 3'd4) ||
+//       (x_pos == 3'd5 && y_pos == 3'd5) ||
+//       (x_pos == 3'd6 && y_pos == 3'd1) ||
+//       (x_pos == 3'd6 && y_pos == 3'd2) ||
+//       (x_pos == 3'd6 && y_pos == 3'd3) ||
+//       (x_pos == 3'd6 && y_pos == 3'd4)
+//     )) begin
+//       colour <= 3'b100;
+//     end
+//     else if ((accuracy == 2'b10) && (  // good  // TODO: Map bitmap to pixels
+//       (x_pos == 3'd1 && y_pos == 3'd1) ||
+//       (x_pos == 3'd1 && y_pos == 3'd2) ||
+//       (x_pos == 3'd1 && y_pos == 3'd3) ||
+//       (x_pos == 3'd1 && y_pos == 3'd4) ||
+//       (x_pos == 3'd1 && y_pos == 3'd5) ||
+//       (x_pos == 3'd1 && y_pos == 3'd6) ||
+//       (x_pos == 3'd2 && y_pos == 3'd0) ||
+//       (x_pos == 3'd2 && y_pos == 3'd7) ||
+//       (x_pos == 3'd3 && y_pos == 3'd0) ||
+//       (x_pos == 3'd3 && y_pos == 3'd7) ||
+//       (x_pos == 3'd4 && y_pos == 3'd0) ||
+//       (x_pos == 3'd4 && y_pos == 3'd4) ||
+//       (x_pos == 3'd4 && y_pos == 3'd7) ||
+//       (x_pos == 3'd5 && y_pos == 3'd0) ||
+//       (x_pos == 3'd5 && y_pos == 3'd4) ||
+//       (x_pos == 3'd5 && y_pos == 3'd5) ||
+//       (x_pos == 3'd5 && y_pos == 3'd6) ||
+//       (x_pos == 3'd6 && y_pos == 3'd4)
+//     )) begin
+//       colour <= 3'b010;
+//     end
+//     else if ((accuracy == 2'b11) && (  // miss  // TODO: Map bitmap to pixels
+//       (x_pos == 3'd1) ||
+//       (x_pos == 3'd2) ||
+//       (x_pos == 3'd3 && y_pos == 3'd0) ||
+//       (x_pos == 3'd3 && y_pos == 3'd1) ||
+//       (x_pos == 3'd3 && y_pos == 3'd3) ||
+//       (x_pos == 3'd3 && y_pos == 3'd4) ||
+//       (x_pos == 3'd4 && y_pos == 3'd0) ||
+//       (x_pos == 3'd4 && y_pos == 3'd1) ||
+//       (x_pos == 3'd4 && y_pos == 3'd3) ||
+//       (x_pos == 3'd4 && y_pos == 3'd4) ||
+//       (x_pos == 3'd5 && y_pos == 3'd0) ||
+//       (x_pos == 3'd5 && y_pos == 3'd1) ||
+//       (x_pos == 3'd5 && y_pos == 3'd3) ||
+//       (x_pos == 3'd5 && y_pos == 3'd4) ||
+//       (x_pos == 3'd6 && y_pos == 3'd0) ||
+//       (x_pos == 3'd6 && y_pos == 3'd1) ||
+//       (x_pos == 3'd6 && y_pos == 3'd3) ||
+//       (x_pos == 3'd6 && y_pos == 3'd4)
+//     )) begin
+//       colour <= 3'b001;
+//     end
+//     else begin
+//       colour <= 3'b000;
+//     end
+// 
+//     x_pos[6:0] <= position[13:7];
+//     y_pos[6:0] <= position[6:0];
+//
+//     position <= position + 1'b1;
+//   end
 endmodule
 
 module clock_8hz(clk, out);
