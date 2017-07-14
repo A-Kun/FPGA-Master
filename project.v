@@ -1,5 +1,5 @@
 module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
-  // The ports below are for the VGA output.  Do not change.
+  The ports below are for the VGA output.  Do not change.
   VGA_CLK,               //  VGA Clock
   VGA_HS,              //  VGA H_SYNC
   VGA_VS,              //  VGA V_SYNC
@@ -10,7 +10,7 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   VGA_B               //  VGA Blue[9:0]
   );
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX5;
-  input [2:0] KEY;
+  input [1:0] KEY;
   input CLOCK_50;
   output [9:0] LEDR;
   input [0:0] SW;
@@ -93,24 +93,24 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
     .hex_display(HEX3[6:0]),
     .signals(score[7:4]));
 
-  hex_accuracy hex_acc(
+  hex_accuracy teaching_assistant(
     .hex(HEX5),
     .accuracy(accuracy));
 
   // just for test, have no meaning at all
   localparam RHYTHM_MAP=191'b0000000100010000000001000001000000100101100000000000000001100001000000100000000000010000000100000001000000000000000000000001000100001000010000000001100000000000010100000000010000000001000001;
 
-  clock_8hz c8 (
+  clock_8hz apple_watch (
     .clk(CLOCK_50),
     .out(clk_8hz));
 
-  control ctr(
+  control richard_pancer(
     .clk(CLOCK_50),
     .start(KEY[0]),
     .rst(SW[0]),
     .enable_shift(if_shift));
 
-  datapath dp(
+  datapath sweatshop(
     .clk_8(clk_8hz),
     .clk_50m(CLOCK_50),
     .load(KEY[0]),
@@ -168,17 +168,18 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   output reg [7:0] combo = 8'b0;
   output reg [7:0] score = 8'b0;
   output reg [1:0] accuracy = 2'b0;
+  reg button_last_state = 1'b1;
   output reg [7:0] x = 8'b0;
   output reg [6:0] y = 7'b0;
   output reg [2:0] colour = 3'b0;
 
-  assign rhythm_shifter_out[9:0] = rhythm_shifter[10:1];
+  assign rhythm_shifter_out[9:0] = rhythm_shifter[11:2];
 
   reg [14:0] position = 15'b0;
   reg [6:0] x_pos = 3'b0;
   reg [6:0] y_pos = 3'b0;
 
-  always @(posedge clk_8) begin
+  always @(posedge clk_50m) begin
     if (!rst) begin
       // reset
       rhythm_shifter <= 191'd0;
@@ -191,38 +192,40 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
         score <= 8'b0;
         combo <= 8'b0;
       end
-      else begin
+      else if (clk_8 == 1'b1) begin
         rhythm_shifter <= rhythm_shifter >> 1;
       end
     end
 
-    if (button == 1'b0) begin
-    // 00: n/a, 01: perfect, 10: good, 11: miss
-      if (rhythm_shifter[0:0] == 1'b1) begin
-        accuracy <= 2'b10;
-        score <= score + 8'd1;
-        combo <= combo + 8'd1;
-        rhythm_shifter[0] <= 1'b0;
-      end else if (rhythm_shifter[1:1] == 1'b1) begin
-        accuracy <= 2'b01;
-        score <= score + 8'd2;
-        combo <= combo + 8'd1;
-        rhythm_shifter[0] <= 1'b0;
-      end else if (rhythm_shifter[2:2] == 1'b1) begin
-        accuracy <= 2'b10;
-        score <= score + 8'd1;
-        combo <= combo + 8'd1;
-        rhythm_shifter[2] <= 1'b0;
-      end else begin
-        accuracy <= 2'b00;
-      end
-    end
-
-    if (rhythm_shifter[0:0] == 1'b1) begin
-      accuracy <= 2'b11;
-      combo <= 8'd0;
+// 00: n/a, 01: perfect, 10: good, 11: miss
+  if (button == 1'b0 && button_last_state == 1'b1) begin
+    if (rhythm_shifter[1] == 1'b1) begin
+      rhythm_shifter[1] <= 1'b0;
+      accuracy <= 2'b10;
+      score <= score + 8'd1;
+      combo <= combo + 8'd1;
+    end else if (rhythm_shifter[2] == 1'b1) begin
+      rhythm_shifter[2] <= 1'b0;
+      accuracy <= 2'b01;
+      score <= score + 8'd2;
+      combo <= combo + 8'd1;
+    end else if (rhythm_shifter[3] == 1'b1) begin
+      rhythm_shifter[3] <= 1'b0;
+      accuracy <= 2'b10;
+      score <= score + 8'd1;
+      combo <= combo + 8'd1;
+    end else begin
+      accuracy <= 2'b00;
     end
   end
+
+  if (rhythm_shifter[0] == 1'b1) begin
+    combo <= 1'b0;
+    accuracy <= 2'b11;
+  end
+
+  button_last_state <= button;
+end
 
   always @(posedge clk_50m) begin
     if (position == 15'b100000000000000) begin
