@@ -1,4 +1,5 @@
-module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
+// module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
+module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW,
   // The ports below are for the VGA output.  Do not change.
   // VGA_CLK,               //  VGA Clock
   // VGA_HS,              //  VGA H_SYNC
@@ -8,20 +9,20 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   // VGA_R,               //  VGA Red[9:0]
   // VGA_G,               //  VGA Green[9:0]
   // VGA_B               //  VGA Blue[9:0]
-  // );
+  );
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX5;
-  input [2:0] KEY;
+  input [1:0] KEY;
   input CLOCK_50;
   output [9:0] LEDR;
   input [0:0] SW;
 
-  input [0:0] GPIO;
-  output [0:0] LEDG;
+  // input [0:0] GPIO;
+  // output [0:0] LEDG;
 
   wire push_key;
-  assign push_key = GPIO[0];
+  assign push_key = KEY[1];
 
-  assign LEDG[0] = GPIO[0];
+  // assign LEDG[0] = GPIO[0];
 
   wire [9:0] led;
   wire clk_8hz;
@@ -169,6 +170,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   output reg [7:0] combo = 8'b0;
   output reg [7:0] score = 8'b0;
   output reg [1:0] accuracy = 2'b0;
+  reg button_last_state = 1'b1;
   // output reg [7:0] x = 8'b0;
   // output reg [6:0] y = 7'b0;
   // output reg [2:0] colour = 3'b0;
@@ -179,7 +181,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   // reg [6:0] x_pos = 3'b0;
   // reg [6:0] y_pos = 3'b0;
 
-  always @(posedge clk_8) begin
+  always @(posedge clk_50m) begin
     if (!rst) begin
       // reset
       rhythm_shifter <= 191'd0;
@@ -192,7 +194,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
         score <= 8'b0;
         combo <= 8'b0;
       end
-      else begin
+      else if (clk_8 == 1'b1) begin
         rhythm_shifter <= rhythm_shifter >> 1;
       end
     end
@@ -223,9 +225,9 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
     //   accuracy <= 2'b11;
     //   combo <= 8'd0;
     // end
-  end
+  // end
 
-  always @(negedge button) begin
+  if (button == 1'b0 && button_last_state == 1'b1) begin
     if (rhythm_shifter[1] == 1'b1) begin
       rhythm_shifter[1] <= 1'b0;
       accuracy <= 2'b10;
@@ -246,10 +248,13 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
     end
   end
 
-  always @ (posedge rhythm_shifter[0]) begin
+  if (rhythm_shifter[0] == 1'b1) begin
     combo <= 1'b0;
     accuracy <= 2'b11;
   end
+
+  button_last_state <= button;
+end
 
 //   always @(posedge clk_50m) begin
 //     if (position == 15'b100000000000000) begin
