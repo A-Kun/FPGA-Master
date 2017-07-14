@@ -104,7 +104,7 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
     .clk(CLOCK_50),
     .out(clk_8hz));
 
-  control richard_pancer(
+  control donald_trump(
     .clk(CLOCK_50),
     .start(KEY[0]),
     .rst(SW[0]),
