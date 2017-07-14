@@ -173,11 +173,11 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   // output reg [6:0] y = 7'b0;
   // output reg [2:0] colour = 3'b0;
 
-  assign rhythm_shifter_out[9:0] = rhythm_shifter[10:1];
+  assign rhythm_shifter_out[9:0] = rhythm_shifter[11:2];
 
-  reg [14:0] position = 15'b0;
-  reg [6:0] x_pos = 3'b0;
-  reg [6:0] y_pos = 3'b0;
+  // reg [14:0] position = 15'b0;
+  // reg [6:0] x_pos = 3'b0;
+  // reg [6:0] y_pos = 3'b0;
 
   always @(posedge clk_8) begin
     if (!rst) begin
@@ -197,32 +197,58 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       end
     end
 
-    if (button == 1'b0) begin
-    // 00: n/a, 01: perfect, 10: good, 11: miss
-      if (rhythm_shifter[0:0] == 1'b1) begin
-        accuracy <= 2'b10;
-        score <= score + 8'd1;
-        combo <= combo + 8'd1;
-        rhythm_shifter[0] <= 1'b0;
-      end else if (rhythm_shifter[1:1] == 1'b1) begin
-        accuracy <= 2'b01;
-        score <= score + 8'd2;
-        combo <= combo + 8'd1;
-        rhythm_shifter[0] <= 1'b0;
-      end else if (rhythm_shifter[2:2] == 1'b1) begin
-        accuracy <= 2'b10;
-        score <= score + 8'd1;
-        combo <= combo + 8'd1;
-        rhythm_shifter[2] <= 1'b0;
-      end else begin
-        accuracy <= 2'b00;
-      end
-    end
+    // if (button == 1'b0) begin
+    // // 00: n/a, 01: perfect, 10: good, 11: miss
+    //   if (rhythm_shifter[0:0] == 1'b1) begin
+    //     accuracy <= 2'b10;
+    //     score <= score + 8'd1;
+    //     combo <= combo + 8'd1;
+    //     rhythm_shifter[0] <= 1'b0;
+    //   end else if (rhythm_shifter[1:1] == 1'b1) begin
+    //     accuracy <= 2'b01;
+    //     score <= score + 8'd2;
+    //     combo <= combo + 8'd1;
+    //     rhythm_shifter[0] <= 1'b0;
+    //   end else if (rhythm_shifter[2:2] == 1'b1) begin
+    //     accuracy <= 2'b10;
+    //     score <= score + 8'd1;
+    //     combo <= combo + 8'd1;
+    //     rhythm_shifter[2] <= 1'b0;
+    //   end else begin
+    //     accuracy <= 2'b00;
+    //   end
+    // end
 
-    if (rhythm_shifter[0:0] == 1'b1) begin
-      accuracy <= 2'b11;
-      combo <= 8'd0;
+    // if (rhythm_shifter[0:0] == 1'b1) begin
+    //   accuracy <= 2'b11;
+    //   combo <= 8'd0;
+    // end
+  end
+
+  always @(negedge button) begin
+    if (rhythm_shifter[1] == 1'b1) begin
+      rhythm_shifter[1] <= 1'b0;
+      accuracy <= 2'b10;
+      score <= score + 8'd1;
+      combo <= combo + 8'd1;
+    end else if (rhythm_shifter[2] == 1'b1) begin
+      rhythm_shifter[2] <= 1'b0;
+      accuracy <= 2'b01;
+      score <= score + 8'd2;
+      combo <= combo + 8'd1;
+    end else if (rhythm_shifter[3] == 1'b1) begin
+      rhythm_shifter[3] <= 1'b0;
+      accuracy <= 2'b10;
+      score <= score + 8'd1;
+      combo <= combo + 8'd1;
+    end else begin
+      accuracy <= 2'b00;
     end
+  end
+
+  always @ (posedge rhythm_shifter[0]) begin
+    combo <= 1'b0;
+    accuracy <= 2'b11;
   end
 
 //   always @(posedge clk_50m) begin
@@ -310,7 +336,7 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
 //     else begin
 //       colour <= 3'b000;
 //     end
-// 
+//
 //     x_pos[6:0] <= position[13:7];
 //     y_pos[6:0] <= position[6:0];
 //
