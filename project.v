@@ -66,16 +66,10 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
       .VGA_BLANK(VGA_BLANK_N),
       .VGA_SYNC(VGA_SYNC_N),
       .VGA_CLK(VGA_CLK));
-    defparam VGA.RESOLUTION = "160x120";
-    defparam VGA.MONOCHROME = "FALSE";
-    defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
-    defparam VGA.BACKGROUND_IMAGE = "black.mif";
-
-  // wire [3:0] counter;
-  // DisplayCounter dc(
-  //   .clear(KEY[0]),
-  //   .enable(clk_4hz),
-  //   .count(counter[3:0]));
+  defparam VGA.RESOLUTION = "160x120";
+  defparam VGA.MONOCHROME = "FALSE";
+  defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
+  defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
   hex combo_lower(
     .hex_display(HEX0[6:0]),
@@ -139,8 +133,7 @@ module control(clk, start, rst, enable_shift);
 
   assign enable_shift = (current_state == GAMING) ? 1'b1 : 1'b0;
 
-  always @ (*)
-  begin: state_table
+  always @(*) begin: state_table
     case (current_state)
       WAIT_TO_START: next_state = start ? GAMING : WAIT_TO_START;
       GAMING: next_state = start ? WAIT_TO_START : GAMING;
@@ -153,10 +146,9 @@ module control(clk, start, rst, enable_shift);
       // reset
       current_state <= WAIT_TO_START;
     end
-    else
-      begin
-        current_state <= next_state;
-      end
+    else begin
+      current_state <= next_state;
+    end
   end
 endmodule
 
@@ -185,47 +177,45 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       rhythm_shifter <= 191'd0;
       score <= 8'b0;
       combo <= 8'b0;
-    end
-    else begin
+    end else begin
       if (!load) begin
         rhythm_shifter <= init_rhythm_map;
         score <= 8'b0;
         combo <= 8'b0;
-      end
-      else if (clk_8 == 1'b1) begin
+      end else if (clk_8 == 1'b1) begin
         rhythm_shifter <= rhythm_shifter >> 1;
       end
     end
 
-// 00: n/a, 01: perfect, 10: good, 11: miss
-  if (button == 1'b0 && button_last_state == 1'b1) begin
-    if (rhythm_shifter[1] == 1'b1) begin
-      rhythm_shifter[1] <= 1'b0;
-      accuracy <= 2'b10;
-      score <= score + 8'd1;
-      combo <= combo + 8'd1;
-    end else if (rhythm_shifter[2] == 1'b1) begin
-      rhythm_shifter[2] <= 1'b0;
-      accuracy <= 2'b01;
-      score <= score + 8'd2;
-      combo <= combo + 8'd1;
-    end else if (rhythm_shifter[3] == 1'b1) begin
-      rhythm_shifter[3] <= 1'b0;
-      accuracy <= 2'b10;
-      score <= score + 8'd1;
-      combo <= combo + 8'd1;
-    end else begin
-      accuracy <= 2'b00;
+    // 00: n/a, 01: perfect, 10: good, 11: miss
+    if (button == 1'b0 && button_last_state == 1'b1) begin
+      if (rhythm_shifter[1] == 1'b1) begin
+        rhythm_shifter[1] <= 1'b0;
+        accuracy <= 2'b10;
+        score <= score + 8'd1;
+        combo <= combo + 8'd1;
+      end else if (rhythm_shifter[2] == 1'b1) begin
+        rhythm_shifter[2] <= 1'b0;
+        accuracy <= 2'b01;
+        score <= score + 8'd2;
+        combo <= combo + 8'd1;
+      end else if (rhythm_shifter[3] == 1'b1) begin
+        rhythm_shifter[3] <= 1'b0;
+        accuracy <= 2'b10;
+        score <= score + 8'd1;
+        combo <= combo + 8'd1;
+      end else begin
+        accuracy <= 2'b00;
+      end
     end
-  end
 
-  if (rhythm_shifter[0] == 1'b1) begin
-    combo <= 1'b0;
-    accuracy <= 2'b11;
-  end
+    if (rhythm_shifter[0] == 1'b1) begin
+      combo <= 1'b0;
+      accuracy <= 2'b11;
+    end
 
-  button_last_state <= button;
-end
+    button_last_state <= button;
+  end
 
   always @(posedge clk_50m) begin
     if (position == 15'b100000000000000) begin
@@ -234,14 +224,11 @@ end
 
     if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
       colour <= 3'b100;
-    end
-    else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 1'b1])) begin
+    end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 1'b1])) begin
         colour <= 3'b111;
-    end
-    else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 1'b1])) begin
+    end else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 1'b1])) begin
         colour <= 3'b000;
-    end
-    else if ((accuracy == 2'b01) && (  // perfect
+    end else if ((accuracy == 2'b01) && (  // perfect
       (x_pos == 7'd54 && y_pos == 7'd55) ||
       (x_pos == 7'd55 && y_pos == 7'd55) ||
       (x_pos == 7'd56 && y_pos == 7'd55) ||
@@ -563,8 +550,7 @@ end
       (x_pos == 7'd103 && y_pos == 7'd64)
     )) begin
       colour <= 3'b100;
-    end
-    else if ((accuracy == 2'b10) && (  // good
+    end else if ((accuracy == 2'b10) && (  // good
       (x_pos == 7'd67 && y_pos == 7'd56) ||
       (x_pos == 7'd68 && y_pos == 7'd56) ||
       (x_pos == 7'd69 && y_pos == 7'd56) ||
@@ -756,8 +742,7 @@ end
       (x_pos == 7'd92 && y_pos == 7'd65)
     )) begin
       colour <= 3'b010;
-    end
-    else if ((accuracy == 2'b11) && (  // miss
+    end else if ((accuracy == 2'b11) && (  // miss
       (x_pos == 7'd66 && y_pos == 7'd55) ||
       (x_pos == 7'd67 && y_pos == 7'd55) ||
       (x_pos == 7'd73 && y_pos == 7'd55) ||
@@ -929,8 +914,7 @@ end
       (x_pos == 7'd92 && y_pos == 7'd64)
     )) begin
       colour <= 3'b001;
-    end
-    else begin
+    end else begin
       colour <= 3'b000;
     end
 
@@ -951,8 +935,7 @@ module clock_8hz(clk, out);
     if (counter[22:0]==23'b10111110101111000010000) begin
       out <= 1'b1;
       counter <= 23'b0;
-    end
-    else begin
+    end else begin
       out <= 1'b0;
     end
   end
