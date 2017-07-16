@@ -1,5 +1,5 @@
 module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
-  The ports below are for the VGA output.  Do not change.
+  // The ports below are for the VGA output.  Do not change.
   VGA_CLK,               //  VGA Clock
   VGA_HS,              //  VGA H_SYNC
   VGA_VS,              //  VGA V_SYNC
@@ -235,13 +235,13 @@ end
     if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
       colour <= 3'b100;
     end
-    else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
+    else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 1'b1])) begin
         colour <= 3'b111;
     end
-    else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos + 1'b1])) begin  // TODO: Map rhythm_shifter to VGA
+    else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 1'b1])) begin
         colour <= 3'b000;
     end
-    else if ((accuracy == 2'b01) && (  // perfect  // TODO: Map bitmap to pixels
+    else if ((accuracy == 2'b01) && (  // perfect
       (x_pos == 7'd54 && y_pos == 7'd55) ||
       (x_pos == 7'd55 && y_pos == 7'd55) ||
       (x_pos == 7'd56 && y_pos == 7'd55) ||
@@ -564,7 +564,7 @@ end
     )) begin
       colour <= 3'b100;
     end
-    else if ((accuracy == 2'b10) && (  // good  // TODO: Map bitmap to pixels
+    else if ((accuracy == 2'b10) && (  // good
       (x_pos == 7'd67 && y_pos == 7'd56) ||
       (x_pos == 7'd68 && y_pos == 7'd56) ||
       (x_pos == 7'd69 && y_pos == 7'd56) ||
@@ -757,7 +757,7 @@ end
     )) begin
       colour <= 3'b010;
     end
-    else if ((accuracy == 2'b11) && (  // miss  // TODO: Map bitmap to pixels
+    else if ((accuracy == 2'b11) && (  // miss
       (x_pos == 7'd66 && y_pos == 7'd55) ||
       (x_pos == 7'd67 && y_pos == 7'd55) ||
       (x_pos == 7'd73 && y_pos == 7'd55) ||
