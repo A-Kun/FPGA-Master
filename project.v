@@ -168,8 +168,8 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
   assign rhythm_shifter_out[9:0] = rhythm_shifter[11:2];
 
   reg [14:0] position = 15'b0;
-  reg [6:0] x_pos = 3'b0;
-  reg [6:0] y_pos = 3'b0;
+  reg [6:0] x_pos = 7'b0;
+  reg [6:0] y_pos = 7'b0;
 
   always @(posedge clk_50m) begin
     if (!rst) begin
@@ -222,12 +222,15 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       position <= 15'b0;
     end
 
-    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[1]) begin
+    x_pos[6:0] <= position[13:7];
+    y_pos[6:0] <= position[6:0];
+	 
+    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[2]) begin
       colour <= 3'b100;
-    end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 1'b1])) begin
-        colour <= 3'b111;
-    end else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 1'b1])) begin
-        colour <= 3'b000;
+    end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 7'd2])) begin
+      colour <= 3'b111;
+    end else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 7'd2])) begin
+      colour <= 3'b000;
     end else if ((accuracy == 2'b01) && (  // perfect
       (x_pos == 7'd54 && y_pos == 7'd55) ||
       (x_pos == 7'd55 && y_pos == 7'd55) ||
@@ -918,8 +921,8 @@ module datapath(clk_8, clk_50m, load, button, is_start, rst, init_rhythm_map, rh
       colour <= 3'b000;
     end
 
-    x_pos[6:0] <= position[13:7];
-    y_pos[6:0] <= position[6:0];
+    x[6:0] <= x_pos[6:0];
+    y[6:0] <= y_pos[6:0];
 
     position <= position + 1'b1;
   end
