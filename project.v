@@ -8,7 +8,8 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   VGA_R,               //  VGA Red[9:0]
   VGA_G,               //  VGA Green[9:0]
   VGA_B               //  VGA Blue[9:0]
-  );
+);
+
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX5;
   input [1:0] KEY;
   input CLOCK_50;
