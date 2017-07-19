@@ -17,13 +17,12 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   input [0:0] SW;
 
   input [1:0] GPIO;
-  output [0:0] LEDG;
+  output [7:0] LEDG;
 
   wire push_key_1;
   assign push_key_1 = GPIO[0];
   wire push_key_2;
   assign push_key_2 = GPIO[1];
-  assign LEDG[0] = GPIO[0];
 
   wire [9:0] led;
   wire clk_8hz;
@@ -117,7 +116,8 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
     .is_start(if_shift),
     .init_rhythm_map_key_1(RHYTHM_MAP_KEY_1),
     .init_rhythm_map_key_2(RHYTHM_MAP_KEY_2),
-    .rhythm_shifter_out(led[9:0]),
+    .rhythm_shifter_out_key_1(led[9:0]),
+    .rhythm_shifter_out_key_2(LEDG[7:0]),
     .combo(combo[7:0]),
     .score(score[7:0]),
     .accuracy(accuracy),
@@ -171,7 +171,7 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
   output reg [2:0] colour = 3'b0;
 
   assign rhythm_shifter_out_key_1[9:0] = rhythm_shifter[11:2];
-  assign rhythm_shifter_out_key_2[7:0] = rhythm_shifter_key_2[9:2]
+  assign rhythm_shifter_out_key_2[7:0] = rhythm_shifter_key_2[9:2];
 
   reg [14:0] position = 15'b0;
   reg [6:0] x_pos = 7'b0;
