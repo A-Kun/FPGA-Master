@@ -210,10 +210,20 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
         combo <= combo + 8'd1;
       end else if (rhythm_shifter[3] == 1'b1) begin
         rhythm_shifter[3] <= 1'b0;
+        accuracy <= 2'b01;
+        score <= score + 8'd2;
+        combo <= combo + 8'd1;
+      end else if (rhythm_shifter[4] == 1'b1) begin
+        rhythm_shifter[4] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
-      end else begin
+      end else if (rhythm_shifter[5] == 1'b1) begin
+        rhythm_shifter[5] <= 1'b0;
+        accuracy <= 2'b11;
+        combo <= 8'd0;
+      end else if (rhythm_shifter[6] == 1'b1) begin
+        rhythm_shifter[6] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
       end
@@ -232,13 +242,23 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
         combo <= combo + 8'd1;
       end else if (rhythm_shifter_key_2[3] == 1'b1) begin
         rhythm_shifter_key_2[3] <= 1'b0;
+        accuracy <= 2'b01;
+        score <= score + 8'd2;
+        combo <= combo + 8'd1;
+      end else if (rhythm_shifter_key_2[4] == 1'b1) begin
+        rhythm_shifter_key_2[4] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
-      end else begin
+      end else if (rhythm_shifter_key_2[5] == 1'b1) begin
+        rhythm_shifter_key_2[5] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
-        end
+      end else if (rhythm_shifter_key_2[6] == 1'b1) begin
+        rhythm_shifter_key_2[6] <= 1'b0;
+        accuracy <= 2'b11;
+        combo <= 8'd0;
+      end
     end
 
     if ((rhythm_shifter[0] == 1'b1) || (rhythm_shifter_key_2[0] == 1'b1)) begin
