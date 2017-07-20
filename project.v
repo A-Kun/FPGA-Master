@@ -213,6 +213,9 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
+      end else begin
+        accuracy <= 2'b11;
+        combo <= 8'd0;
       end
     end
 
@@ -232,7 +235,10 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
-      end
+      end else begin
+        accuracy <= 2'b11;
+        combo <= 8'd0;
+        end
     end
 
     if ((rhythm_shifter[0] == 1'b1) || (rhythm_shifter_key_2[0] == 1'b1)) begin
