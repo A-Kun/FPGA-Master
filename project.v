@@ -258,7 +258,7 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
     y_pos[6:0] <= position[6:0];
 
     if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[2] && !rhythm_shifter_key_2[2]) begin
-      colour <= 3'b000;
+      colour <= 3'b111;
     end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 7'd2]) && (rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
       colour <= 3'b110;
     end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 7'd2])) begin
