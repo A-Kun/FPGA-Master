@@ -1,3 +1,4 @@
+// main module
 module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO,
   // The ports below are for the VGA output.  Do not change.
   VGA_CLK,               //  VGA Clock
@@ -9,30 +10,41 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   VGA_G,               //  VGA Green[9:0]
   VGA_B               //  VGA Blue[9:0]
 );
-
+  // declearation of inputs and outputs
+  // hex displays
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX5;
+  // keys for control FSM
   input [1:0] KEY;
+  // clock@50mhz
   input CLOCK_50;
+  // red leds for first rail
   output [9:0] LEDR;
+  // switch as reset signal
   input [0:0] SW;
-
+  // connect external physical buttons to GPIO[0] and GPIO[1]
   input [1:0] GPIO;
+  // green leds for second rail
   output [7:0] LEDG;
 
+  // wire connected to first button
   wire push_key_1;
   assign push_key_1 = GPIO[0];
+  // wire connected to second button
   wire push_key_2;
   assign push_key_2 = GPIO[1];
-
+  // wire connected to red leds
   wire [9:0] led;
+  // wire connected to 8hz pulse
   wire clk_8hz;
+  // wire connected to signal if the rhythm is now shifting
   wire if_shift;
-
+  // 8-bit wire as combo counter
   wire [7:0] combo;
+  // 8-bit wire as score counter
   wire [7:0] score;
-
+  // wire connected to accuracy
   wire [1:0] accuracy;
-
+  // connect red leds to wire
   assign LEDR[9:0] = led[9:0];
 
   // Do not change the following outputs
@@ -51,6 +63,8 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   // Create an Instance of a VGA controller - there can be only one!
   // Define the number of colours as well as the initial background
   // image file (.MIF) for the controller.
+
+  // instiantiate the vga adapter
   vga_adapter VGA(
       .resetn(SW[0]),
       .clock(CLOCK_50),
@@ -72,40 +86,48 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
   defparam VGA.BACKGROUND_IMAGE = "black.mif";
 
+  // display lower digits of combo at hex0 display
   hex combo_lower(
     .hex_display(HEX0[6:0]),
     .signals(combo[3:0]));
 
+  // display higher digits of combo at hex1 display
   hex combo_higher(
     .hex_display(HEX1[6:0]),
     .signals(combo[7:4]));
 
+  // display lower digits of score at hex2 display
   hex score_lower(
     .hex_display(HEX2[6:0]),
     .signals(score[3:0]));
 
+  // display higher digits of score at hex2 display
   hex score_higher(
     .hex_display(HEX3[6:0]),
     .signals(score[7:4]));
 
+  // display accuracy grade of the user input (P, G, F, N/A)
   hex_accuracy grader(
     .hex(HEX5),
     .accuracy(accuracy));
 
-  // just for test, have no meaning at all
+  // rhythm maps
   localparam RHYTHM_MAP_KEY_1 = 142'b1111000100000001010100010000000101010000010001000001000001010000000100000100010000010000010100000001000000010000000100000001000000010000000000;
   localparam RHYTHM_MAP_KEY_2 = 142'b1111000101010001000000010101000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000000000000;
 
-  clock_8hz apple_watch (
+  // 8hz pulse
+  clock_8hz watch (
     .clk(CLOCK_50),
     .out(clk_8hz));
 
+  // fsm control module
   control donald_trump(
     .clk(CLOCK_50),
     .start(KEY[0]),
     .rst(SW[0]),
     .enable_shift(if_shift));
 
+  // fsm datapath module
   datapath sweatshop(
     .clk_8(clk_8hz),
     .clk_50m(CLOCK_50),
@@ -127,17 +149,19 @@ module project(CLOCK_50, LEDR, KEY, HEX0, HEX1, HEX2, HEX3, HEX5, SW, LEDG, GPIO
   );
 endmodule
 
+// start of control module
 module control(clk, start, rst, enable_shift);
+  // declearation of inputs and outputs
   input clk, start, rst;
   output enable_shift;
 
   reg [2:0] current_state, next_state;
-
+  // two fsm states
   localparam WAIT_TO_START = 2'b00,
   GAMING = 2'b01;
 
   assign enable_shift = (current_state == GAMING) ? 1'b1 : 1'b0;
-
+  // decide the next state depending on the start wire connected to key
   always @(*) begin: state_table
     case (current_state)
       WAIT_TO_START: next_state = start ? GAMING : WAIT_TO_START;
@@ -157,7 +181,9 @@ module control(clk, start, rst, enable_shift);
   end
 endmodule
 
+// start of datapath module
 module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rhythm_map_key_1, init_rhythm_map_key_2, rhythm_shifter_out_key_1, rhythm_shifter_out_key_2, combo, score, accuracy, x, y, colour);
+  // declearation of inputs and outputs
   input clk_8, clk_50m, is_start, rst, load, button_1, button_2;
   input [190:0] init_rhythm_map_key_1, init_rhythm_map_key_2;
   reg [190:0] rhythm_shifter, rhythm_shifter_key_2;
@@ -169,15 +195,18 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
   output reg [7:0] x = 8'b0;
   output reg [6:0] y = 7'b0;
   output reg [2:0] colour = 3'b0;
-
+  // assign last digits of rhythm maps to output leds
+  // red leds
   assign rhythm_shifter_out_key_1[9:0] = rhythm_shifter[11:2];
+  // green leds
   assign rhythm_shifter_out_key_2[7:0] = rhythm_shifter_key_2[9:2];
-
+  // increments
   reg [14:0] position = 15'b0;
   reg [6:0] x_pos = 7'b0;
   reg [6:0] y_pos = 7'b0;
 
   always @(posedge clk_50m) begin
+    // if rst is pressed, reset the fsm
     if (!rst) begin
       // reset
       rhythm_shifter <= 191'd0;
@@ -185,96 +214,114 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
       score <= 8'b0;
       combo <= 8'b0;
     end else begin
+      // if load botton is pressed, load the rhythm map
       if (!load) begin
         rhythm_shifter <= init_rhythm_map_key_1;
         rhythm_shifter_key_2 <= init_rhythm_map_key_2;
         score <= 8'b0;
         combo <= 8'b0;
       end else if (clk_8 == 1'b1) begin
+        // otherwise start shifting
         rhythm_shifter <= rhythm_shifter >> 1;
         rhythm_shifter_key_2 <= rhythm_shifter_key_2 >> 1;
       end
     end
 
     // 00: n/a, 01: perfect, 10: good, 11: miss
+    // if a button is pressed
     if (button_1 == 1'b0 && button_1_last_state == 1'b1) begin
+    // good case
       if (rhythm_shifter[1] == 1'b1) begin
         rhythm_shifter[1] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
+        // perfect case
       end else if (rhythm_shifter[2] == 1'b1) begin
         rhythm_shifter[2] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
+        // perfect case
       end else if (rhythm_shifter[3] == 1'b1) begin
         rhythm_shifter[3] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
+        // good case
       end else if (rhythm_shifter[4] == 1'b1) begin
         rhythm_shifter[4] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
+        // miss case
       end else if (rhythm_shifter[5] == 1'b1) begin
         rhythm_shifter[5] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
+        // miss case
       end else if (rhythm_shifter[6] == 1'b1) begin
         rhythm_shifter[6] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
       end
     end
-
+    // button_2 is pressed
     if (button_2 == 1'b0 && button_2_last_state == 1'b1) begin
+      // good case
       if (rhythm_shifter_key_2[1] == 1'b1) begin
         rhythm_shifter_key_2[1] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
+        // perfect case
       end else if (rhythm_shifter_key_2[2] == 1'b1) begin
         rhythm_shifter_key_2[2] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
+        // perfect case
       end else if (rhythm_shifter_key_2[3] == 1'b1) begin
         rhythm_shifter_key_2[3] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
+        // good case
       end else if (rhythm_shifter_key_2[4] == 1'b1) begin
         rhythm_shifter_key_2[4] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
       end else if (rhythm_shifter_key_2[5] == 1'b1) begin
+      // miss case
         rhythm_shifter_key_2[5] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
       end else if (rhythm_shifter_key_2[6] == 1'b1) begin
+      // miss case
         rhythm_shifter_key_2[6] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
       end
     end
-
+    // if the last digit of the rhythm_shifter is 1'b1, player must missed a note
     if ((rhythm_shifter[0] == 1'b1) || (rhythm_shifter_key_2[0] == 1'b1)) begin
       combo <= 1'b0;
       accuracy <= 2'b11;
     end
 
+    // set the last states of buttons
     button_1_last_state <= button_1;
     button_2_last_state <= button_2;
   end
 
+  // set te colors
   wire [15:0] shifter_out_color_r;
   wire [15:0] shifter_out_color_g;
   assign shifter_out_color_r = rhythm_shifter[15:0];
   assign shifter_out_color_g = rhythm_shifter_key_2[15:0];
 
+  // set increments
   always @(posedge clk_50m) begin
     if (position == 15'b100000000000000) begin
       position <= 15'b0;
@@ -991,6 +1038,7 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
 endmodule
 
 module clock_8hz(clk, out);
+  // 8 hz clock
   input clk;
   output reg out=1'b0;
 
@@ -1007,6 +1055,7 @@ module clock_8hz(clk, out);
 endmodule
 
 module hex_accuracy(accuracy, hex);
+  // hex display of P/G/F
   input [1:0] accuracy;
   output [6:0] hex;
 
