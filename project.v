@@ -186,7 +186,7 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
   // declearation of inputs and outputs
   input clk_8, clk_50m, is_start, rst, load, button_1, button_2;
   input [190:0] init_rhythm_map_key_1, init_rhythm_map_key_2;
-  reg [190:0] rhythm_shifter, rhythm_shifter_key_2;
+  reg [190:0] rhythm_shifter_key_1, rhythm_shifter_key_2;
   output wire [9:0] rhythm_shifter_out_key_1, rhythm_shifter_out_key_2;
   output reg [7:0] combo = 8'b0;
   output reg [7:0] score = 8'b0;
@@ -197,7 +197,7 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
   output reg [2:0] colour = 3'b0;
   // assign last digits of rhythm maps to output leds
   // red leds
-  assign rhythm_shifter_out_key_1[9:0] = rhythm_shifter[11:2];
+  assign rhythm_shifter_out_key_1[9:0] = rhythm_shifter_key_1[11:2];
   // green leds
   assign rhythm_shifter_out_key_2[7:0] = rhythm_shifter_key_2[9:2];
   // increments
@@ -209,20 +209,20 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
     // if rst is pressed, reset the fsm
     if (!rst) begin
       // reset
-      rhythm_shifter <= 191'd0;
+      rhythm_shifter_key_1 <= 191'd0;
       rhythm_shifter_key_2 <= 191'd0;
       score <= 8'b0;
       combo <= 8'b0;
     end else begin
       // if load botton is pressed, load the rhythm map
       if (!load) begin
-        rhythm_shifter <= init_rhythm_map_key_1;
+        rhythm_shifter_key_1 <= init_rhythm_map_key_1;
         rhythm_shifter_key_2 <= init_rhythm_map_key_2;
         score <= 8'b0;
         combo <= 8'b0;
       end else if (clk_8 == 1'b1) begin
         // otherwise start shifting
-        rhythm_shifter <= rhythm_shifter >> 1;
+        rhythm_shifter_key_1 <= rhythm_shifter_key_1 >> 1;
         rhythm_shifter_key_2 <= rhythm_shifter_key_2 >> 1;
       end
     end
@@ -231,37 +231,37 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
     // if a button is pressed
     if (button_1 == 1'b0 && button_1_last_state == 1'b1) begin
     // good case
-      if (rhythm_shifter[1] == 1'b1) begin
-        rhythm_shifter[1] <= 1'b0;
+      if (rhythm_shifter_key_1[1] == 1'b1) begin
+        rhythm_shifter_key_1[1] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
         // perfect case
-      end else if (rhythm_shifter[2] == 1'b1) begin
-        rhythm_shifter[2] <= 1'b0;
+      end else if (rhythm_shifter_key_1[2] == 1'b1) begin
+        rhythm_shifter_key_1[2] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
         // perfect case
-      end else if (rhythm_shifter[3] == 1'b1) begin
-        rhythm_shifter[3] <= 1'b0;
+      end else if (rhythm_shifter_key_1[3] == 1'b1) begin
+        rhythm_shifter_key_1[3] <= 1'b0;
         accuracy <= 2'b01;
         score <= score + 8'd2;
         combo <= combo + 8'd1;
         // good case
-      end else if (rhythm_shifter[4] == 1'b1) begin
-        rhythm_shifter[4] <= 1'b0;
+      end else if (rhythm_shifter_key_1[4] == 1'b1) begin
+        rhythm_shifter_key_1[4] <= 1'b0;
         accuracy <= 2'b10;
         score <= score + 8'd1;
         combo <= combo + 8'd1;
         // miss case
-      end else if (rhythm_shifter[5] == 1'b1) begin
-        rhythm_shifter[5] <= 1'b0;
+      end else if (rhythm_shifter_key_1[5] == 1'b1) begin
+        rhythm_shifter_key_1[5] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
         // miss case
-      end else if (rhythm_shifter[6] == 1'b1) begin
-        rhythm_shifter[6] <= 1'b0;
+      end else if (rhythm_shifter_key_1[6] == 1'b1) begin
+        rhythm_shifter_key_1[6] <= 1'b0;
         accuracy <= 2'b11;
         combo <= 8'd0;
       end
@@ -304,8 +304,8 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
         combo <= 8'd0;
       end
     end
-    // if the last digit of the rhythm_shifter is 1'b1, player must missed a note
-    if ((rhythm_shifter[0] == 1'b1) || (rhythm_shifter_key_2[0] == 1'b1)) begin
+    // if the last digit of the rhythm shifter is 1'b1, player must missed a note
+    if ((rhythm_shifter_key_1[0] == 1'b1) || (rhythm_shifter_key_2[0] == 1'b1)) begin
       combo <= 1'b0;
       accuracy <= 2'b11;
     end
@@ -318,11 +318,11 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
   // set te colors
   wire [15:0] shifter_out_color_r;
   wire [15:0] shifter_out_color_g;
-  assign shifter_out_color_r = rhythm_shifter[15:0];
+  assign shifter_out_color_r = rhythm_shifter_key_1[15:0];
   assign shifter_out_color_g = rhythm_shifter_key_2[15:0];
 
-  // set increments
   always @(posedge clk_50m) begin
+    // set increments
     if (position == 15'b100000000000000) begin
       position <= 15'b0;
     end
@@ -330,17 +330,23 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
     x_pos[6:0] <= position[13:7];
     y_pos[6:0] <= position[6:0];
 
-    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter[2] && !rhythm_shifter_key_2[2]) begin
+    // draw the target block in the upper-left corner
+    if (x_pos < 7'd8 && y_pos < 7'd8 && !rhythm_shifter_key_1[2] && !rhythm_shifter_key_2[2]) begin
       colour <= 3'b111;
-    end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 7'd2]) && (rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
+    // draw the yellow rhythm notes
+    end else if ((y_pos < 7'd8) && (rhythm_shifter_key_1[x_pos / 8 + 7'd2]) && (rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
       colour <= 3'b110;
-    end else if ((y_pos < 7'd8) && (rhythm_shifter[x_pos / 8 + 7'd2])) begin
+    // draw the red rhythm notes
+    end else if ((y_pos < 7'd8) && (rhythm_shifter_key_1[x_pos / 8 + 7'd2])) begin
       colour <= 3'b100;
+    // draw the cyan rhythm notes
     end else if ((y_pos < 7'd8) && (rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
       colour <= 3'b011;
-    end else if ((y_pos < 7'd8) && (!rhythm_shifter[x_pos / 8 + 7'd2]) && !(rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
+    // if the block on the rhythm track has nothing, just draw a black block
+    end else if ((y_pos < 7'd8) && (!rhythm_shifter_key_1[x_pos / 8 + 7'd2]) && !(rhythm_shifter_key_2[x_pos / 8 + 7'd2])) begin
       colour <= 3'b000;
-    end else if ((accuracy == 2'b01) && (  // perfect
+    // pixel mapping for the word "Perfect"
+    end else if ((accuracy == 2'b01) && (
       (x_pos == 7'd54 && y_pos == 7'd55) ||
       (x_pos == 7'd55 && y_pos == 7'd55) ||
       (x_pos == 7'd56 && y_pos == 7'd55) ||
@@ -662,7 +668,8 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
       (x_pos == 7'd103 && y_pos == 7'd64)
     )) begin
       colour <= 3'b100;
-    end else if ((accuracy == 2'b10) && (  // good
+    // pixel mapping for the word "Good"
+    end else if ((accuracy == 2'b10) && (
       (x_pos == 7'd67 && y_pos == 7'd56) ||
       (x_pos == 7'd68 && y_pos == 7'd56) ||
       (x_pos == 7'd69 && y_pos == 7'd56) ||
@@ -854,7 +861,8 @@ module datapath(clk_8, clk_50m, load, button_1, button_2, is_start, rst, init_rh
       (x_pos == 7'd92 && y_pos == 7'd65)
     )) begin
       colour <= 3'b010;
-    end else if ((accuracy == 2'b11) && (  // miss
+    // pixel mapping for the word "Miss"
+    end else if ((accuracy == 2'b11) && (
       (x_pos == 7'd66 && y_pos == 7'd55) ||
       (x_pos == 7'd67 && y_pos == 7'd55) ||
       (x_pos == 7'd73 && y_pos == 7'd55) ||
@@ -1040,12 +1048,12 @@ endmodule
 module clock_8hz(clk, out);
   // 8 hz clock
   input clk;
-  output reg out=1'b0;
+  output reg out = 1'b0;
 
-  reg [22:0] counter=23'b0;
+  reg [22:0] counter = 23'b0;
   always @(posedge clk) begin
     counter <= counter + 1'b1;
-    if (counter[22:0]==23'b10111110101111000010000) begin
+    if (counter[22:0] == 23'b10111110101111000010000) begin
       out <= 1'b1;
       counter <= 23'b0;
     end else begin
