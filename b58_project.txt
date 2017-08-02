@@ -1,0 +1,110 @@
+CSCB58 Project File: Summer 2017
+
+Team Member A
+-------------
+First Name: Pengyun (Andrew)
+Last Name: Wang
+Student Number: --removed--
+UofT E-mail Address: andrewpy.wang@mail.utoronto.ca
+
+Team Member B
+-------------
+First Name: Sidi
+Last Name: He
+Student Number: --removed--
+UofT E-mail Address: sidi.he@mail.utoronto.ca
+
+Team Member C
+-------------
+First Name: Zhongyang
+Last Name: Xia
+Student Number: --removed--
+UofT E-mail Address: zhongyang.xia@mail.utoronto.ca
+
+Project Details
+---------------
+Project Title: FPGA Rhythm Master
+
+Project Description: A rhythm game built with FPGA board. A player gets points and combo
+streak by pressing a key on time as indicated by the flowing rhythm notes displayed on the
+screen. When a red box approches the target, you should press the left button. When a blue
+box approches, you should press the right button. When there is a yellow box, you press
+both buttons at the same time! After each press, a word indicating the accuracy will show
+up on the screen, which is one of "Perfect", "Good", "Miss".
+
+Video URL: https://youtu.be/NOJuRKVT-xs
+
+Code URL: https://github.com/XIAZY/FPGA-Master
+
+Proposal
+--------
+
+What do you plan to have completed by the end of the first lab session?:
+Draw rhythm notes and get the rhythm notes moving.
+
+What do you plan to have completed by the end of the second lab session?:
+When user presses a key, check if the press is within a reasonable time range of the
+rhythm note. If so, add a point.
+
+What do you plan to have completed by the end of the third lab session?:
+Add accuracy checking, displaying accuracy levels like "Perfect" or "Great" on the screen.
+
+What is your backup plan if things don't work out as planned?
+If rhythm notes refuse to work properly on screen, show them on the LEDs instead.
+
+What hardware will you need beyond the DE2 board?
+(be sure to e-mail Brian if it's anything beyond the basics to make sure there's enough
+to go around)
+A monitor and a VGA cable.
+
+Motivations
+-----------
+How does this project relate to the material covered in CSCB58?:
+- Usage of the VGA adaptor to draw rhythm notes on the screen
+- Usage of the clock to move the rhythm notes and check for click precision
+- Usage of a counter to increment points
+
+Why is this project interesting/cool (for CSCB58 students, and for non CSCB58 students?):
+For CSCB58 students, this project shows many cool features of the FGPA board we used in
+labs. For example, the use of registers for storing a sequence of notes for the game,
+the use of shifters for making the notes flow, and the use of VGA adapter for displaying
+rhythm notes and accuracy on the screen.
+For non-CSCB58 students, this is a type of game that can be played without much knowledge
+of FPGA boards, and is already familiar with.
+
+Why did you personally choose this project?:
+Our team members are all enthusiasts of rhythm games ;-)
+
+Attributions
+------------
+Provide a complete list of any external resources your project used (attributions should
+also be included in your code).
+This project is solely written from scratch, except for usage of the provided VPA Adapter.
+
+Updates
+-------
+
+Week 1: We attempted to display moving notes via VGA. We can get the notes painted on the
+track by hardcoding coordinates, but for some weird reasons we are having trouble with
+hooking up a register with two modules so we did not get the painting module connected
+to a clock. Considering the time frame for this project, we decided to go with our Plan B,
+that is using the LEDs to display rhythm notes. We got the rhythm notes flowing on LEDs
+and the game basically working, but the game is a little bit difficult to play because it
+requires absolute accuracy. A threshold will be added in the future to make the game
+easier to play with.
+
+Week 2: Fortunately, we got VGA working! Now we have two ways of displaying the rhythm
+notes - on screen and LEDs. We also implemented accuracy checking, that it displays "P"
+for perfect if the player presses the button exactly on time, "G" for good if timing is a
+little bit off, and "F" for fail if the rhythm note is missed. Besides, we hooked up a
+arcade button to GPIO for better experience, and it worked pretty well. There is a bug
+though - in gameplay it sometimes displays "F" and clears the combo streak. We are
+planning to get this fixed in the next week.
+
+Week 3: As planned, the random fail bug has been fixed. We made the rhythm track and
+accuracy indicator bigger and nicer - now it not only displays just a letter, but the
+whole words: "Perfect", "Good", and "Miss". We also implemented multiple colours on the
+rhythm track, that is, when a red box approches the target, you should press the left
+button. When a blue box approches, you should press the right button. When there is a
+yellow box, you press both buttons at the same time! And we raised the flag of victory
+for completion of the project! Yay!
